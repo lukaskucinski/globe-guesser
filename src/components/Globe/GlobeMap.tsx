@@ -5,9 +5,11 @@ import { useCountryInteraction } from "./useCountryInteraction";
 import {
   COUNTRY_SOURCE_ID,
   MICRO_SOURCE_ID,
+  LABEL_SOURCE_ID,
   countryFillLayer,
   countryLineLayer,
   microCircleLayer,
+  countryLabelLayer,
 } from "./mapStyles";
 import { COUNTRIES } from "../../data/countries";
 
@@ -101,6 +103,25 @@ export const GlobeMap = forwardRef<GlobeMapHandle, GlobeMapProps>(
           promoteId: "iso",
         });
         map.addLayer(microCircleLayer);
+
+        // Add country name labels (hidden by default, shown via feature state)
+        map.addSource(LABEL_SOURCE_ID, {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: COUNTRIES.map((c) => ({
+              type: "Feature" as const,
+              id: c.iso_a2,
+              properties: { iso: c.iso_a2, name: c.name },
+              geometry: {
+                type: "Point" as const,
+                coordinates: c.labelLngLat,
+              },
+            })),
+          },
+          promoteId: "iso",
+        });
+        map.addLayer(countryLabelLayer);
 
         setMapReady(true);
       });

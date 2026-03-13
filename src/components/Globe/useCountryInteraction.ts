@@ -3,6 +3,7 @@ import type mapboxgl from "mapbox-gl";
 import {
   COUNTRY_SOURCE_ID,
   MICRO_SOURCE_ID,
+  LABEL_SOURCE_ID,
   COUNTRY_FILL_LAYER_ID,
   MICRO_CIRCLE_LAYER_ID,
 } from "./mapStyles";
@@ -138,6 +139,15 @@ export function useCountryInteraction({
       } catch {
         // Not a micro-state, ignore
       }
+      // Also set on label source for name display
+      try {
+        map.setFeatureState(
+          { source: LABEL_SOURCE_ID, id: iso },
+          state
+        );
+      } catch {
+        // Ignore
+      }
     },
     [map]
   );
@@ -149,6 +159,11 @@ export function useCountryInteraction({
       map.removeFeatureState({ source: MICRO_SOURCE_ID });
     } catch {
       // Ignore if source doesn't exist
+    }
+    try {
+      map.removeFeatureState({ source: LABEL_SOURCE_ID });
+    } catch {
+      // Ignore
     }
   }, [map]);
 

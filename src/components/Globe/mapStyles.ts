@@ -1,11 +1,13 @@
-import type { CircleLayerSpecification, FillLayerSpecification, LineLayerSpecification } from "mapbox-gl";
+import type { CircleLayerSpecification, FillLayerSpecification, LineLayerSpecification, SymbolLayerSpecification } from "mapbox-gl";
 
 export const COUNTRY_SOURCE_ID = "country-boundaries";
 export const MICRO_SOURCE_ID = "micro-states";
+export const LABEL_SOURCE_ID = "country-labels";
 export const COUNTRY_FILL_LAYER_ID = "country-fills";
 export const COUNTRY_LINE_LAYER_ID = "country-lines";
 export const COUNTRY_HOVER_LAYER_ID = "country-hover";
 export const MICRO_CIRCLE_LAYER_ID = "micro-circles";
+export const COUNTRY_LABEL_LAYER_ID = "country-label-names";
 
 export const countryFillLayer: FillLayerSpecification = {
   id: COUNTRY_FILL_LAYER_ID,
@@ -109,4 +111,43 @@ export const countryLineLayer: LineLayerSpecification = {
     ["==", ["get", "disputed"], "false"],
     ["any", ["==", "all", ["get", "worldview"]], ["in", "US", ["get", "worldview"]]],
   ],
+};
+
+// Country name labels — hidden by default, shown via feature state
+export const countryLabelLayer: SymbolLayerSpecification = {
+  id: COUNTRY_LABEL_LAYER_ID,
+  type: "symbol",
+  source: LABEL_SOURCE_ID,
+  layout: {
+    "text-field": ["get", "name"],
+    "text-size": [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      1, 10,
+      4, 14,
+      8, 18,
+    ],
+    "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+    "text-anchor": "center",
+    "text-allow-overlap": false,
+    "text-ignore-placement": false,
+    "text-padding": 2,
+  },
+  paint: {
+    "text-opacity": [
+      "case",
+      ["boolean", ["feature-state", "guessed"], false], 1,
+      ["boolean", ["feature-state", "wrong"], false], 1,
+      0,
+    ],
+    "text-color": [
+      "case",
+      ["boolean", ["feature-state", "guessed"], false], "#22c55e",
+      ["boolean", ["feature-state", "wrong"], false], "#ef4444",
+      "#ffffff",
+    ],
+    "text-halo-color": "rgba(0, 0, 0, 0.8)",
+    "text-halo-width": 1.5,
+  },
 };
