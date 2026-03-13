@@ -1,22 +1,32 @@
-import { useRef, useCallback } from "react";
-import { GlobeMap, type GlobeMapHandle } from "./components/Globe/GlobeMap";
+import { useEffect } from "react";
+import { GlobeMap } from "./components/Globe/GlobeMap";
+import { MainMenu } from "./components/Menu/MainMenu";
+import { GameScreen } from "./components/Game/GameScreen";
+import { LearnMode } from "./components/Learn/LearnMode";
+import { useGameStore } from "./stores/gameStore";
+import { useSettingsStore } from "./stores/settingsStore";
+import { setMuted } from "./lib/sound";
 
 function App() {
-  const globeRef = useRef<GlobeMapHandle>(null);
+  const screen = useGameStore((s) => s.screen);
+  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
 
-  const handleCountryClick = useCallback((iso: string) => {
-    console.log("Clicked country:", iso);
-    globeRef.current?.setCountryState(iso, { guessed: true });
-  }, []);
+  useEffect(() => {
+    setMuted(!soundEnabled);
+  }, [soundEnabled]);
 
   return (
     <div className="relative w-full h-full bg-bg">
-      <GlobeMap
-        ref={globeRef}
-        spinning={true}
-        interactive={true}
-        onCountryClick={handleCountryClick}
-      />
+      {screen === "menu" && (
+        <>
+          <GlobeMap spinning={true} interactive={false} />
+          <MainMenu />
+        </>
+      )}
+
+      {(screen === "playing" || screen === "results") && <GameScreen />}
+
+      {screen === "learn" && <LearnMode />}
     </div>
   );
 }
