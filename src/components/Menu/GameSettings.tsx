@@ -35,10 +35,12 @@ export function GameSettings() {
     difficulty,
     timeLimit,
     wrongGuessMode,
+    hintZoom,
     setRegion,
     setDifficulty,
     setTimeLimit,
     setWrongGuessMode,
+    setHintZoom,
   } = useSettingsStore();
 
   return (
@@ -67,6 +69,26 @@ export function GameSettings() {
         options={modeOptions}
         onChange={(v) => setWrongGuessMode(v as WrongGuessMode)}
       />
+
+      {/* Zoom hint toggle */}
+      <div className="col-span-2 flex items-center justify-between mt-1">
+        <div>
+          <p className="text-sm text-text">Zoom hint</p>
+          <p className="text-xs text-text-dim">Fly to next country after correct guess</p>
+        </div>
+        <button
+          className={`w-11 h-6 rounded-full transition-colors cursor-pointer ${
+            hintZoom ? "bg-accent" : "bg-surface-light border border-border"
+          }`}
+          onClick={() => setHintZoom(!hintZoom)}
+        >
+          <div
+            className={`w-4 h-4 rounded-full bg-white shadow transition-transform mx-1 ${
+              hintZoom ? "translate-x-5" : "translate-x-0"
+            }`}
+          />
+        </button>
+      </div>
     </div>
   );
 }

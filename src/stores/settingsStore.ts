@@ -9,12 +9,14 @@ interface SettingsStore {
   timeLimit: TimeLimit;
   wrongGuessMode: WrongGuessMode;
   soundEnabled: boolean;
+  hintZoom: boolean;
 
   setRegion: (region: Region | "all") => void;
   setDifficulty: (difficulty: Difficulty) => void;
   setTimeLimit: (timeLimit: TimeLimit) => void;
   setWrongGuessMode: (mode: WrongGuessMode) => void;
   setSoundEnabled: (enabled: boolean) => void;
+  setHintZoom: (enabled: boolean) => void;
   getGameSettings: (isDaily?: boolean) => GameSettings;
 }
 
@@ -26,12 +28,14 @@ export const useSettingsStore = create<SettingsStore>()(
       timeLimit: 0,
       wrongGuessMode: "lives",
       soundEnabled: true,
+      hintZoom: false,
 
       setRegion: (region) => set({ region }),
       setDifficulty: (difficulty) => set({ difficulty }),
       setTimeLimit: (timeLimit) => set({ timeLimit }),
       setWrongGuessMode: (mode) => set({ wrongGuessMode: mode }),
       setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
+      setHintZoom: (enabled) => set({ hintZoom: enabled }),
 
       getGameSettings: (isDaily = false) => {
         const state = get();

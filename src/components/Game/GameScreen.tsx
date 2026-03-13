@@ -25,6 +25,7 @@ export function GameScreen() {
   const endGame = useGameStore((s) => s.endGame);
   const soundEnabled = useSettingsStore((s) => s.soundEnabled);
   const setSoundEnabled = useSettingsStore((s) => s.setSoundEnabled);
+  const hintZoom = useSettingsStore((s) => s.hintZoom);
   const [wrongFlash, setWrongFlash] = useState<string | null>(null);
 
   useTimer();
@@ -62,12 +63,14 @@ export function GameScreen() {
       if (result === "correct") {
         globeRef.current?.setCountryState(iso, { guessed: true, wrong: false });
 
-        // Fly to next country's region if it's far
-        const nextIso = queue[currentIndex + 1];
-        if (nextIso) {
-          const nextCountry = COUNTRY_MAP.get(nextIso);
-          if (nextCountry) {
-            globeRef.current?.flyTo(nextCountry.labelLngLat, 3);
+        // Optionally fly to next country's region (hint zoom)
+        if (hintZoom) {
+          const nextIso = queue[currentIndex + 1];
+          if (nextIso) {
+            const nextCountry = COUNTRY_MAP.get(nextIso);
+            if (nextCountry) {
+              globeRef.current?.flyTo(nextCountry.labelLngLat, 3);
+            }
           }
         }
       } else if (result === "wrong") {
@@ -75,7 +78,7 @@ export function GameScreen() {
         setWrongFlash(iso);
       }
     },
-    [screen, handleGuess, queue, currentIndex]
+    [screen, handleGuess, queue, currentIndex, hintZoom]
   );
 
   return (

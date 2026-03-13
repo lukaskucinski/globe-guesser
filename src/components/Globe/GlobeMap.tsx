@@ -59,6 +59,16 @@ export const GlobeMap = forwardRef<GlobeMapHandle, GlobeMapProps>(
           "star-intensity": 0.6,
         });
 
+        // Hide all text labels from the base style
+        const layers = map.getStyle().layers;
+        if (layers) {
+          for (const layer of layers) {
+            if (layer.type === "symbol") {
+              map.setLayoutProperty(layer.id, "visibility", "none");
+            }
+          }
+        }
+
         // Add country boundaries source
         map.addSource(COUNTRY_SOURCE_ID, {
           type: "vector",
