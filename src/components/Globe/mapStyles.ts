@@ -32,7 +32,11 @@ export const countryFillLayer: FillLayerSpecification = {
       1,
     ],
   },
-  filter: ["==", ["get", "disputed"], "false"],
+  filter: [
+    "all",
+    ["==", ["get", "disputed"], "false"],
+    ["any", ["==", "all", ["get", "worldview"]], ["in", "US", ["get", "worldview"]]],
+  ],
 };
 
 export const countryLineLayer: LineLayerSpecification = {
@@ -54,5 +58,9 @@ export const countryLineLayer: LineLayerSpecification = {
       0.5,
     ],
   },
-  filter: ["==", ["get", "disputed"], "false"],
+  filter: [
+    "all",
+    ["==", ["get", "disputed"], "false"],
+    ["any", ["==", "all", ["get", "worldview"]], ["in", "US", ["get", "worldview"]]],
+  ],
 };

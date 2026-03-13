@@ -62,7 +62,7 @@ export const GlobeMap = forwardRef<GlobeMapHandle, GlobeMapProps>(
         map.addSource(COUNTRY_SOURCE_ID, {
           type: "vector",
           url: "mapbox://mapbox.country-boundaries-v1",
-          promoteId: { country_boundaries: "iso_3166_1_alpha_2" },
+          promoteId: { country_boundaries: "iso_3166_1" },
         });
 
         // Add fill layer (for click detection + coloring)

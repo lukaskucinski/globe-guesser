@@ -39,7 +39,7 @@ export function useCountryInteraction({
       });
 
       if (features.length > 0) {
-        const iso = features[0].properties?.iso_3166_1_alpha_2 as string | undefined;
+        const iso = features[0].properties?.iso_3166_1 as string | undefined;
         if (iso) {
           onCountryClick?.(iso);
         }
@@ -52,7 +52,7 @@ export function useCountryInteraction({
       });
 
       if (features.length > 0) {
-        const iso = features[0].properties?.iso_3166_1_alpha_2 as string | undefined;
+        const iso = features[0].properties?.iso_3166_1 as string | undefined;
         if (iso && iso !== hoveredId.current) {
           clearHover();
           hoveredId.current = iso;
