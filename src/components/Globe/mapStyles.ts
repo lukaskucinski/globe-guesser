@@ -1,9 +1,11 @@
-import type { FillLayerSpecification, LineLayerSpecification } from "mapbox-gl";
+import type { CircleLayerSpecification, FillLayerSpecification, LineLayerSpecification } from "mapbox-gl";
 
 export const COUNTRY_SOURCE_ID = "country-boundaries";
+export const MICRO_SOURCE_ID = "micro-states";
 export const COUNTRY_FILL_LAYER_ID = "country-fills";
 export const COUNTRY_LINE_LAYER_ID = "country-lines";
 export const COUNTRY_HOVER_LAYER_ID = "country-hover";
+export const MICRO_CIRCLE_LAYER_ID = "micro-circles";
 
 export const countryFillLayer: FillLayerSpecification = {
   id: COUNTRY_FILL_LAYER_ID,
@@ -37,6 +39,50 @@ export const countryFillLayer: FillLayerSpecification = {
     ["==", ["get", "disputed"], "false"],
     ["any", ["==", "all", ["get", "worldview"]], ["in", "US", ["get", "worldview"]]],
   ],
+};
+
+// Circle markers for micro-states (clickable at low zoom)
+export const microCircleLayer: CircleLayerSpecification = {
+  id: MICRO_CIRCLE_LAYER_ID,
+  type: "circle",
+  source: MICRO_SOURCE_ID,
+  paint: {
+    "circle-radius": [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      1, 6,
+      4, 10,
+      6, 14,
+      8, 0,
+    ],
+    "circle-color": [
+      "case",
+      ["boolean", ["feature-state", "guessed"], false],
+      "#22c55e",
+      ["boolean", ["feature-state", "wrong"], false],
+      "#ef4444",
+      "rgba(6, 182, 212, 0.6)",
+    ],
+    "circle-stroke-width": 1.5,
+    "circle-stroke-color": "rgba(6, 182, 212, 0.8)",
+    "circle-opacity": [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      1, 0.8,
+      6, 0.6,
+      7, 0,
+    ],
+    "circle-stroke-opacity": [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      1, 1,
+      6, 0.6,
+      7, 0,
+    ],
+  },
 };
 
 export const countryLineLayer: LineLayerSpecification = {

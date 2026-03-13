@@ -7,9 +7,12 @@ import { Timer } from "./Timer";
 import { ProgressBar } from "./ProgressBar";
 import { GameOverModal } from "./GameOverModal";
 import { useGameStore } from "../../stores/gameStore";
+import { useSettingsStore } from "../../stores/settingsStore";
 import { useTimer } from "../../hooks/useTimer";
 import { COUNTRY_MAP } from "../../data/countries";
 import { REGION_CENTERS } from "../../data/regions";
+import { setMuted } from "../../lib/sound";
+import { Button } from "../UI/Button";
 
 export function GameScreen() {
   const globeRef = useRef<GlobeMapHandle>(null);
@@ -19,6 +22,9 @@ export function GameScreen() {
   const currentIndex = useGameStore((s) => s.currentIndex);
   const guessedCountries = useGameStore((s) => s.guessedCountries);
   const handleGuess = useGameStore((s) => s.handleGuess);
+  const endGame = useGameStore((s) => s.endGame);
+  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
+  const setSoundEnabled = useSettingsStore((s) => s.setSoundEnabled);
   const [wrongFlash, setWrongFlash] = useState<string | null>(null);
 
   useTimer();
@@ -88,6 +94,24 @@ export function GameScreen() {
           <LivesDisplay />
           <Timer />
           <ProgressBar />
+
+          {/* Controls: mute + quit */}
+          <div className="absolute bottom-6 right-6 z-20 flex gap-2">
+            <button
+              className="bg-surface/80 backdrop-blur-lg border border-border rounded-lg px-3 py-2 text-sm text-text-dim hover:text-text transition-colors cursor-pointer"
+              onClick={() => {
+                const next = !soundEnabled;
+                setSoundEnabled(next);
+                setMuted(!next);
+              }}
+              title={soundEnabled ? "Mute" : "Unmute"}
+            >
+              {soundEnabled ? "\u{1F50A}" : "\u{1F507}"}
+            </button>
+            <Button variant="ghost" size="sm" onClick={endGame}>
+              Quit
+            </Button>
+          </div>
         </>
       )}
 

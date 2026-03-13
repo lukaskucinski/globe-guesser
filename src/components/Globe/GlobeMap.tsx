@@ -4,11 +4,12 @@ import { useGlobeRotation } from "./useGlobeRotation";
 import { useCountryInteraction } from "./useCountryInteraction";
 import {
   COUNTRY_SOURCE_ID,
-  COUNTRY_FILL_LAYER_ID,
-  COUNTRY_LINE_LAYER_ID,
+  MICRO_SOURCE_ID,
   countryFillLayer,
   countryLineLayer,
+  microCircleLayer,
 } from "./mapStyles";
+import { COUNTRIES } from "../../data/countries";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
@@ -70,6 +71,26 @@ export const GlobeMap = forwardRef<GlobeMapHandle, GlobeMapProps>(
 
         // Add line layer (outlines)
         map.addLayer(countryLineLayer);
+
+        // Add micro-state circle markers
+        const microStates = COUNTRIES.filter((c) => c.isMicroState);
+        map.addSource(MICRO_SOURCE_ID, {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: microStates.map((c) => ({
+              type: "Feature" as const,
+              id: c.iso_a2,
+              properties: { iso: c.iso_a2, name: c.name },
+              geometry: {
+                type: "Point" as const,
+                coordinates: c.labelLngLat,
+              },
+            })),
+          },
+          promoteId: "iso",
+        });
+        map.addLayer(microCircleLayer);
 
         setMapReady(true);
       });
