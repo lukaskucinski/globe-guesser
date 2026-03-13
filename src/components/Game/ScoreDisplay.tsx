@@ -5,9 +5,9 @@ export function ScoreDisplay() {
   const streak = useGameStore((s) => s.streak);
 
   return (
-    <div className="absolute top-6 right-6 z-20 pointer-events-none">
-      <div className="bg-surface/80 backdrop-blur-lg border border-border rounded-xl px-4 py-2 shadow-lg text-right">
-        <p className="text-2xl font-bold text-gold">{score}</p>
+    <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-20 pointer-events-none">
+      <div className="bg-surface/80 backdrop-blur-lg border border-border rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 shadow-lg text-right">
+        <p className="text-xl sm:text-2xl font-bold text-gold">{score}</p>
         <p className="text-xs text-text-dim">
           {streak > 1 && (
             <span className="text-accent">
