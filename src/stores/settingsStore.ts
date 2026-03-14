@@ -28,7 +28,7 @@ export const useSettingsStore = create<SettingsStore>()(
       region: "all",
       difficulty: "medium",
       timeLimit: 0,
-      wrongGuessMode: "lives",
+      wrongGuessMode: "3lives",
       soundEnabled: true,
       hintZoom: false,
       maxSkips: 0,
@@ -48,7 +48,7 @@ export const useSettingsStore = create<SettingsStore>()(
             region: "all",
             difficulty: "medium",
             timeLimit: 300,
-            wrongGuessMode: "lives",
+            wrongGuessMode: "3lives",
             isDaily: true,
             maxSkips: 0,
           };

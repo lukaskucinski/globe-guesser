@@ -83,7 +83,7 @@ export function GameOverModal() {
           <p className="text-text-dim text-sm">
             {isComplete
               ? "You found every country!"
-              : settings?.wrongGuessMode === "lives"
+              : settings && ["sudden_death", "3lives", "5lives"].includes(settings.wrongGuessMode)
                 ? "Out of lives"
                 : settings?.timeLimit
                   ? "Time's up!"

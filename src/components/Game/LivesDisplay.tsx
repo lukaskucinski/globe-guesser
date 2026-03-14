@@ -1,16 +1,22 @@
 import { useGameStore } from "../../stores/gameStore";
 
+const LIVES_MODES = new Set(["sudden_death", "3lives", "5lives"]);
+
 export function LivesDisplay() {
   const lives = useGameStore((s) => s.lives);
-  const wrongGuessMode = useGameStore((s) => s.settings?.wrongGuessMode);
+  const settings = useGameStore((s) => s.settings);
 
-  if (wrongGuessMode !== "lives") return null;
+  if (!settings || !LIVES_MODES.has(settings.wrongGuessMode)) return null;
+
+  const totalLives = settings.wrongGuessMode === "sudden_death" ? 1
+    : settings.wrongGuessMode === "3lives" ? 3
+    : 5;
 
   return (
     <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-20 pointer-events-none">
       <div className="bg-surface/80 backdrop-blur-lg border border-border rounded-xl px-4 py-2 shadow-lg">
         <div className="flex gap-1.5">
-          {[0, 1, 2].map((i) => (
+          {Array.from({ length: totalLives }, (_, i) => (
             <span
               key={i}
               className={`text-xl transition-all duration-300 ${

@@ -27,8 +27,10 @@ const timeOptions = [
 ];
 
 const modeOptions = [
-  { value: "lives", label: "3 Lives" },
-  { value: "unlimited", label: "Unlimited tries" },
+  { value: "sudden_death", label: "Sudden death" },
+  { value: "3lives", label: "3 lives" },
+  { value: "5lives", label: "5 lives" },
+  { value: "unlimited", label: "Unlimited" },
   { value: "penalty", label: "Score penalty" },
 ];
 
@@ -116,7 +118,10 @@ export function GameSettings() {
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-text">Skips</p>
+            <div>
+              <p className="text-sm font-medium text-text">Skips</p>
+              {maxSkips > 0 && <p className="text-xs text-text-dim mt-0.5">Score penalty per skip</p>}
+            </div>
             <p className="text-sm font-semibold text-accent">{maxSkips === 0 ? "Off" : maxSkips}</p>
           </div>
           <input

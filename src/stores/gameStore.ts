@@ -6,6 +6,20 @@ import { computeGuessPoints, computePenalty } from "../data/scoring";
 import { shuffle } from "../lib/shuffle";
 import { getDailyChallengeCountries } from "../lib/dailyChallenge";
 import { playSound } from "../lib/sound";
+import type { WrongGuessMode } from "../types/game";
+
+function livesForMode(mode: WrongGuessMode): number {
+  switch (mode) {
+    case "sudden_death": return 1;
+    case "3lives": return 3;
+    case "5lives": return 5;
+    default: return 0; // unlimited, penalty
+  }
+}
+
+function isLivesMode(mode: WrongGuessMode): boolean {
+  return mode === "sudden_death" || mode === "3lives" || mode === "5lives";
+}
 
 interface GameStore {
   screen: Screen;
@@ -95,7 +109,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   get isGameOver() {
     const { currentIndex, queue, lives, settings } = get();
     if (currentIndex >= queue.length) return true;
-    if (settings?.wrongGuessMode === "lives" && lives <= 0) return true;
+    if (settings && isLivesMode(settings.wrongGuessMode) && lives <= 0) return true;
     return false;
   },
 
@@ -111,7 +125,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       guessedCountries: new Map(),
       score: 0,
       streak: 0,
-      lives: 3,
+      lives: livesForMode(settings.wrongGuessMode),
       currentAttempts: 0,
       startedAt: Date.now(),
       timeRemaining: settings.timeLimit,
@@ -179,11 +193,11 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       playSound("wrong");
 
       const newLives =
-        settings.wrongGuessMode === "lives" ? state.lives - 1 : state.lives;
+        isLivesMode(settings.wrongGuessMode) ? state.lives - 1 : state.lives;
       const penalty =
         settings.wrongGuessMode === "penalty" ? computePenalty(country) : 0;
       const isOut =
-        settings.wrongGuessMode === "lives" && newLives <= 0;
+        isLivesMode(settings.wrongGuessMode) && newLives <= 0;
 
       if (isOut) {
         playSound("gameover");
