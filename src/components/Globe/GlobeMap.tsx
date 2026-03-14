@@ -44,7 +44,7 @@ export const GlobeMap = forwardRef<GlobeMapHandle, GlobeMapProps>(
         style: "mapbox://styles/mapbox/dark-v11",
         projection: "globe",
         center: [20, 20],
-        zoom: 2.2,
+        zoom: 2.8,
         maxZoom: 8,
         minZoom: 1,
         antialias: true,
