@@ -14,7 +14,7 @@ export interface CountryMeta {
   subregion: string;
   area_km2: number;
   population: number;
-  difficulty: 1 | 2 | 3;
+  difficulty: 1 | 2 | 3 | 4;
   basePoints: number;
   isMicroState: boolean;
   labelLngLat: [number, number];

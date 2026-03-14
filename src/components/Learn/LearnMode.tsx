@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { GlobeMap, type GlobeMapHandle } from "../Globe/GlobeMap";
 import { Button } from "../UI/Button";
 import { useGameStore } from "../../stores/gameStore";
@@ -10,6 +10,17 @@ export function LearnMode() {
   const setScreen = useGameStore((s) => s.setScreen);
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (selectedCountry) setSelectedCountry(null);
+        else setScreen("menu");
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [selectedCountry, setScreen]);
 
   const handleHover = useCallback((iso: string | null) => {
     setHoveredCountry(iso);
@@ -38,8 +49,13 @@ export function LearnMode() {
 
       {/* Back button */}
       <div className="absolute top-6 left-6 z-20">
-        <Button variant="secondary" size="sm" onClick={() => setScreen("menu")}>
-          Back
+        <Button variant="secondary" size="md" onClick={() => setScreen("menu")}>
+          <span className="flex items-center gap-1.5">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Menu
+          </span>
         </Button>
       </div>
 

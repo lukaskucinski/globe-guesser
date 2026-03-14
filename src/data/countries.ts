@@ -10,7 +10,7 @@ function c(
   subregion: string,
   area: number,
   pop: number,
-  difficulty: 1 | 2 | 3,
+  difficulty: 1 | 2 | 3 | 4,
   lng: number,
   lat: number
 ): CountryMeta {
@@ -238,6 +238,63 @@ export const COUNTRIES: CountryMeta[] = [
   c("TO", "TON", "Tonga", "Oceania", "Polynesia", 747, 105695, 3, -175.2, -21.2),
   c("TV", "TUV", "Tuvalu", "Oceania", "Polynesia", 26, 11792, 3, 179.2, -7.1),
   c("VU", "VUT", "Vanuatu", "Oceania", "Melanesia", 12189, 307145, 3, 166.9, -15.4),
+
+  // ── TERRITORIES & DEPENDENCIES ──
+  // Caribbean & Atlantic (difficulty 3 = well-known, 4 = obscure)
+  c("PR", "PRI", "Puerto Rico", "NorthAmerica", "Caribbean", 8959, 3221000, 3, -66.5, 18.2),
+  c("AW", "ABW", "Aruba", "NorthAmerica", "Caribbean", 180, 107000, 3, -70.0, 12.5),
+  c("CW", "CUW", "Curaçao", "NorthAmerica", "Caribbean", 444, 150000, 3, -69.0, 12.2),
+  c("KY", "CYM", "Cayman Islands", "NorthAmerica", "Caribbean", 264, 66000, 3, -81.3, 19.3),
+  c("BM", "BMU", "Bermuda", "NorthAmerica", "Atlantic", 54, 64000, 3, -64.8, 32.3),
+  c("GP", "GLP", "Guadeloupe", "NorthAmerica", "Caribbean", 1628, 384000, 3, -61.6, 16.2),
+  c("MQ", "MTQ", "Martinique", "NorthAmerica", "Caribbean", 1128, 375000, 3, -61.0, 14.6),
+  c("TC", "TCA", "Turks and Caicos", "NorthAmerica", "Caribbean", 948, 39000, 4, -71.8, 21.8),
+  c("VG", "VGB", "British Virgin Islands", "NorthAmerica", "Caribbean", 151, 30000, 4, -64.6, 18.4),
+  c("VI", "VIR", "U.S. Virgin Islands", "NorthAmerica", "Caribbean", 347, 87000, 4, -64.9, 18.3),
+  c("AI", "AIA", "Anguilla", "NorthAmerica", "Caribbean", 91, 15000, 4, -63.1, 18.2),
+  c("MS", "MSR", "Montserrat", "NorthAmerica", "Caribbean", 102, 5000, 4, -62.2, 16.7),
+  c("SX", "SXM", "Sint Maarten", "NorthAmerica", "Caribbean", 34, 44000, 4, -63.1, 18.0),
+  c("BL", "BLM", "Saint Barthélemy", "NorthAmerica", "Caribbean", 25, 11000, 4, -62.8, 17.9),
+  c("BQ", "BES", "Caribbean Netherlands", "NorthAmerica", "Caribbean", 322, 26000, 4, -68.3, 12.2),
+
+  // South America / South Atlantic
+  c("GF", "GUF", "French Guiana", "SouthAmerica", "South America", 83534, 290000, 3, -53.1, 3.9),
+  c("FK", "FLK", "Falkland Islands", "SouthAmerica", "South Atlantic", 12173, 3400, 3, -59.5, -51.8),
+
+  // Europe / Arctic
+  c("GL", "GRL", "Greenland", "NorthAmerica", "Northern America", 2166086, 56000, 3, -42.0, 72.0),
+  c("FO", "FRO", "Faroe Islands", "Europe", "Northern Europe", 1393, 49000, 3, -7.0, 62.0),
+  c("GI", "GIB", "Gibraltar", "Europe", "Southern Europe", 7, 33000, 4, -5.4, 36.1),
+  c("GG", "GGY", "Guernsey", "Europe", "Channel Islands", 78, 63000, 4, -2.5, 49.5),
+  c("JE", "JEY", "Jersey", "Europe", "Channel Islands", 116, 103000, 4, -2.1, 49.2),
+  c("IM", "IMN", "Isle of Man", "Europe", "British Isles", 572, 84000, 4, -4.5, 54.2),
+  c("SJ", "SJM", "Svalbard", "Europe", "Northern Europe", 61022, 2600, 4, 16.0, 78.0),
+  c("AX", "ALA", "Åland Islands", "Europe", "Northern Europe", 1580, 30000, 4, 20.0, 60.2),
+
+  // Africa / Indian Ocean
+  c("RE", "REU", "Réunion", "Africa", "Eastern Africa", 2512, 859000, 3, 55.5, -21.1),
+  c("YT", "MYT", "Mayotte", "Africa", "Eastern Africa", 374, 321000, 4, 45.2, -12.8),
+  c("SH", "SHN", "Saint Helena", "Africa", "Western Africa", 394, 6000, 4, -5.7, -15.9),
+  c("GS", "SGS", "South Georgia", "SouthAmerica", "South Atlantic", 3903, 30, 4, -36.6, -54.3),
+
+  // Asia
+  c("HK", "HKG", "Hong Kong", "Asia", "Eastern Asia", 1104, 7500000, 3, 114.2, 22.3),
+  c("MO", "MAC", "Macau", "Asia", "Eastern Asia", 33, 680000, 3, 113.5, 22.2),
+
+  // Pacific / Oceania
+  c("NC", "NCL", "New Caledonia", "Oceania", "Melanesia", 18575, 292000, 3, 165.5, -20.9),
+  c("GU", "GUM", "Guam", "Oceania", "Micronesia", 549, 154000, 3, 144.8, 13.4),
+  c("PF", "PYF", "French Polynesia", "Oceania", "Polynesia", 3287, 282000, 4, -149.6, -17.5),
+  c("AS", "ASM", "American Samoa", "Oceania", "Polynesia", 199, 50000, 4, -170.1, -14.3),
+  c("MP", "MNP", "Northern Mariana Islands", "Oceania", "Micronesia", 460, 47000, 4, 145.8, 15.2),
+  c("WF", "WLF", "Wallis and Futuna", "Oceania", "Polynesia", 142, 11000, 4, -176.2, -13.3),
+  c("CK", "COK", "Cook Islands", "Oceania", "Polynesia", 236, 17000, 4, -159.8, -21.2),
+  c("NU", "NIU", "Niue", "Oceania", "Polynesia", 260, 1600, 4, -169.9, -19.1),
+  c("TK", "TKL", "Tokelau", "Oceania", "Polynesia", 12, 1500, 4, -172.0, -9.2),
+  c("NF", "NFK", "Norfolk Island", "Oceania", "Polynesia", 36, 2000, 4, 167.9, -29.0),
+  c("CC", "CCK", "Cocos (Keeling) Islands", "Oceania", "Indian Ocean", 14, 550, 4, 96.8, -12.2),
+  c("CX", "CXR", "Christmas Island", "Oceania", "Indian Ocean", 135, 1800, 4, 105.7, -10.5),
+  c("PN", "PCN", "Pitcairn Islands", "Oceania", "Polynesia", 47, 50, 4, -130.1, -25.1),
 ];
 
 // Lookup by ISO A2

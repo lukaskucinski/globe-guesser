@@ -20,6 +20,7 @@ interface GameStore {
   startedAt: number;
   timeRemaining: number;
   totalCountries: number;
+  skipsRemaining: number;
 
   // Derived
   currentCountry: CountryMeta | null;
@@ -30,6 +31,7 @@ interface GameStore {
   setScreen: (screen: Screen) => void;
   startGame: (settings: GameSettings) => void;
   handleGuess: (isoCode: string) => "correct" | "wrong" | "already_guessed";
+  skipCountry: () => string | null;
   tick: () => void;
   endGame: () => void;
   reset: () => void;
@@ -52,8 +54,10 @@ function buildQueue(settings: GameSettings): string[] {
     pool = pool.filter((c) => c.difficulty === 1);
   } else if (settings.difficulty === "medium") {
     pool = pool.filter((c) => c.difficulty <= 2);
+  } else if (settings.difficulty === "hard") {
+    pool = pool.filter((c) => c.difficulty <= 3);
   }
-  // "hard" includes everything
+  // "insane" includes everything
 
   return shuffle(pool).map((c) => c.iso_a2);
 }
@@ -71,6 +75,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   startedAt: 0,
   timeRemaining: 0,
   totalCountries: 0,
+  skipsRemaining: 0,
 
   get currentCountry() {
     const { queue, currentIndex } = get();
@@ -111,6 +116,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       startedAt: Date.now(),
       timeRemaining: settings.timeLimit,
       totalCountries: queue.length,
+      skipsRemaining: settings.maxSkips,
     });
   },
 
@@ -195,6 +201,44 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     }
   },
 
+  skipCountry: () => {
+    const state = get();
+    const { queue, currentIndex, settings, skipsRemaining } = state;
+    if (!settings?.maxSkips || skipsRemaining <= 0) return null;
+    if (currentIndex >= queue.length) return null;
+
+    const targetIso = queue[currentIndex];
+    const country = COUNTRY_MAP.get(targetIso);
+    if (!country) return null;
+
+    // Deduct a small penalty (half the base points)
+    const penalty = Math.round(country.basePoints * 0.5);
+
+    const newGuessed = new Map(state.guessedCountries);
+    newGuessed.set(targetIso, {
+      iso: targetIso,
+      correct: false,
+      attempts: 0,
+      pointsEarned: -penalty,
+      timeElapsed: (Date.now() - state.startedAt) / 1000,
+    });
+
+    const newIndex = currentIndex + 1;
+    const isComplete = newIndex >= queue.length;
+
+    set({
+      guessedCountries: newGuessed,
+      score: Math.max(0, state.score - penalty),
+      streak: 0,
+      currentAttempts: 0,
+      currentIndex: newIndex,
+      skipsRemaining: skipsRemaining - 1,
+      screen: isComplete ? "results" : "playing",
+    });
+
+    return targetIso;
+  },
+
   tick: () => {
     const state = get();
     if (state.screen !== "playing" || !state.settings?.timeLimit) return;
@@ -230,6 +274,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       startedAt: 0,
       timeRemaining: 0,
       totalCountries: 0,
+      skipsRemaining: 0,
     });
   },
 }));

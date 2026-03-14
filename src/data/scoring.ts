@@ -7,10 +7,10 @@ function normalize(value: number, max: number): number {
   return Math.min(value / max, 1);
 }
 
-export function computeBasePoints(area: number, population: number, difficulty: 1 | 2 | 3): number {
+export function computeBasePoints(area: number, population: number, difficulty: 1 | 2 | 3 | 4): number {
   const areaScore = 40 * (1 - normalize(area, MAX_AREA));
   const popScore = 30 * (1 - normalize(population, MAX_POP));
-  const tierBonus = 20 * ((difficulty - 1) / 2);
+  const tierBonus = 20 * ((difficulty - 1) / 3);
   return Math.round(10 + areaScore + popScore + tierBonus);
 }
 
