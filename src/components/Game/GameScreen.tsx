@@ -3,7 +3,6 @@ import { GlobeMap, type GlobeMapHandle } from "../Globe/GlobeMap";
 import { CountryPrompt } from "./CountryPrompt";
 import { ScoreDisplay } from "./ScoreDisplay";
 import { LivesDisplay } from "./LivesDisplay";
-import { Timer } from "./Timer";
 import { ProgressBar } from "./ProgressBar";
 import { GameOverModal } from "./GameOverModal";
 import { useGameStore } from "../../stores/gameStore";
@@ -95,7 +94,6 @@ export function GameScreen() {
           <CountryPrompt />
           <ScoreDisplay />
           <LivesDisplay />
-          <Timer />
           <ProgressBar />
 
           {/* Controls: mute + quit */}
@@ -111,7 +109,7 @@ export function GameScreen() {
             >
               {soundEnabled ? "\u{1F50A}" : "\u{1F507}"}
             </button>
-            <Button variant="ghost" size="sm" onClick={endGame}>
+            <Button variant="ghost" size="md" onClick={endGame}>
               Quit
             </Button>
           </div>
