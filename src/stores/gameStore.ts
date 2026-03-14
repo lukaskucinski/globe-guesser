@@ -32,6 +32,7 @@ interface GameStore {
   lives: number;
   currentAttempts: number;
   startedAt: number;
+  endedAt: number;
   timeRemaining: number;
   totalCountries: number;
   skipsRemaining: number;
@@ -87,6 +88,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   lives: 3,
   currentAttempts: 0,
   startedAt: 0,
+  endedAt: 0,
   timeRemaining: 0,
   totalCountries: 0,
   skipsRemaining: 0,
@@ -128,6 +130,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       lives: livesForMode(settings.wrongGuessMode),
       currentAttempts: 0,
       startedAt: Date.now(),
+      endedAt: 0,
       timeRemaining: settings.timeLimit,
       totalCountries: queue.length,
       skipsRemaining: settings.maxSkips,
@@ -185,6 +188,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         currentAttempts: 0,
         currentIndex: newIndex,
         screen: isComplete ? "results" : "playing",
+        ...(isComplete && { endedAt: Date.now() }),
       });
 
       return "correct";
@@ -209,6 +213,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         streak: 0,
         currentAttempts: state.currentAttempts + 1,
         screen: isOut ? "results" : "playing",
+        ...(isOut && { endedAt: Date.now() }),
       });
 
       return "wrong";
@@ -248,6 +253,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       currentIndex: newIndex,
       skipsRemaining: skipsRemaining - 1,
       screen: isComplete ? "results" : "playing",
+      ...(isComplete && { endedAt: Date.now() }),
     });
 
     return targetIso;
@@ -260,7 +266,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const newTime = state.timeRemaining - 1;
     if (newTime <= 0) {
       playSound("gameover");
-      set({ timeRemaining: 0, screen: "results" });
+      set({ timeRemaining: 0, screen: "results", endedAt: Date.now() });
     } else {
       if (newTime <= 10) {
         playSound("tick");
@@ -271,7 +277,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   endGame: () => {
     playSound("gameover");
-    set({ screen: "results" });
+    set({ screen: "results", endedAt: Date.now() });
   },
 
   reset: () => {
@@ -286,6 +292,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       lives: 3,
       currentAttempts: 0,
       startedAt: 0,
+      endedAt: 0,
       timeRemaining: 0,
       totalCountries: 0,
       skipsRemaining: 0,

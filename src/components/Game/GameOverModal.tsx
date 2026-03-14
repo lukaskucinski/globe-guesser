@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useGameStore } from "../../stores/gameStore";
+import { REGION_LABELS } from "../../data/regions";
 import { Button } from "../UI/Button";
+import type { Region } from "../../types/country";
 
 function getPerformanceTier(pct: number, isComplete: boolean) {
   if (isComplete) return { title: "Perfect!", emoji: "\u{1F3C6}" };
@@ -33,11 +35,14 @@ export function GameOverModal() {
   const currentIndex = useGameStore((s) => s.currentIndex);
   const totalCountries = useGameStore((s) => s.totalCountries);
   const startedAt = useGameStore((s) => s.startedAt);
+  const endedAt = useGameStore((s) => s.endedAt);
   const settings = useGameStore((s) => s.settings);
+  const lives = useGameStore((s) => s.lives);
+  const timeRemaining = useGameStore((s) => s.timeRemaining);
   const startGame = useGameStore((s) => s.startGame);
   const reset = useGameStore((s) => s.reset);
 
-  const elapsed = Math.round((Date.now() - startedAt) / 1000);
+  const elapsed = Math.round(((endedAt || Date.now()) - startedAt) / 1000);
   const minutes = Math.floor(elapsed / 60);
   const seconds = elapsed % 60;
   const pct =
@@ -83,10 +88,10 @@ export function GameOverModal() {
           <p className="text-text-dim text-sm">
             {isComplete
               ? "You found every country!"
-              : settings && ["sudden_death", "3lives", "5lives"].includes(settings.wrongGuessMode)
-                ? "Out of lives"
-                : settings?.timeLimit
-                  ? "Time's up!"
+              : settings?.timeLimit && timeRemaining <= 0
+                ? "Time's up!"
+                : lives <= 0 && settings && ["sudden_death", "3lives", "5lives"].includes(settings.wrongGuessMode)
+                  ? "Out of lives"
                   : "Better luck next time!"}
           </p>
         </div>
@@ -113,6 +118,28 @@ export function GameOverModal() {
             <p className="text-xs text-text-dim">Time</p>
           </div>
         </div>
+
+        {settings && (
+          <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mb-6 text-xs text-text-dim">
+            <span>{settings.region === "all" ? "All Regions" : REGION_LABELS[settings.region as Region]}</span>
+            <span className="text-border">·</span>
+            <span className="capitalize">{settings.difficulty}</span>
+            <span className="text-border">·</span>
+            <span>
+              {settings.wrongGuessMode === "sudden_death" ? "Sudden death"
+                : settings.wrongGuessMode === "3lives" ? "3 lives"
+                : settings.wrongGuessMode === "5lives" ? "5 lives"
+                : settings.wrongGuessMode === "penalty" ? "Score penalty"
+                : "Unlimited"}
+            </span>
+            {settings.timeLimit > 0 && (
+              <>
+                <span className="text-border">·</span>
+                <span>{settings.timeLimit >= 60 ? `${settings.timeLimit / 60}m` : `${settings.timeLimit}s`}</span>
+              </>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-col gap-3">
           {settings && (
