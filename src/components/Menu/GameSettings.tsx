@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import { Select } from "../UI/Select";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { COUNTRIES } from "../../data/countries";
 import { REGION_LABELS, ALL_REGIONS } from "../../data/regions";
 import type { Region } from "../../types/country";
 import type { Difficulty, TimeLimit, WrongGuessMode } from "../../types/game";
@@ -13,6 +15,7 @@ const difficultyOptions = [
   { value: "easy", label: "Easy (Major countries)" },
   { value: "medium", label: "Medium (No micro-states)" },
   { value: "hard", label: "Hard (Everything)" },
+  { value: "insane", label: "Insane (+ Territories)" },
 ];
 
 const timeOptions = [
@@ -24,8 +27,10 @@ const timeOptions = [
 ];
 
 const modeOptions = [
-  { value: "lives", label: "3 Lives" },
-  { value: "unlimited", label: "Unlimited tries" },
+  { value: "sudden_death", label: "Sudden death" },
+  { value: "3lives", label: "3 lives" },
+  { value: "5lives", label: "5 lives" },
+  { value: "unlimited", label: "Unlimited" },
   { value: "penalty", label: "Score penalty" },
 ];
 
@@ -36,17 +41,28 @@ export function GameSettings() {
     timeLimit,
     wrongGuessMode,
     hintZoom,
+    maxSkips,
     setRegion,
     setDifficulty,
     setTimeLimit,
     setWrongGuessMode,
     setHintZoom,
+    setMaxSkips,
   } = useSettingsStore();
 
+  const countryCount = useMemo(() => {
+    let pool = COUNTRIES;
+    if (region !== "all") pool = pool.filter((c) => c.region === region);
+    if (difficulty === "easy") pool = pool.filter((c) => c.difficulty === 1);
+    else if (difficulty === "medium") pool = pool.filter((c) => c.difficulty <= 2);
+    else if (difficulty === "hard") pool = pool.filter((c) => c.difficulty <= 3);
+    return pool.length;
+  }, [region, difficulty]);
+
   return (
-    <div className="flex flex-col gap-8 sm:gap-10">
+    <div className="flex flex-col gap-5 sm:gap-7">
       {/* Dropdowns */}
-      <div className="grid grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-8 sm:gap-y-10">
+      <div className="grid grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-5 sm:gap-y-7">
         <Select
           label="Region"
           value={region}
@@ -73,24 +89,61 @@ export function GameSettings() {
         />
       </div>
 
-      {/* Zoom hint toggle */}
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-text">Zoom hint</p>
-          <p className="text-xs text-text-dim mt-1">Fly to next country after correct guess</p>
-        </div>
-        <button
-          className={`w-11 h-6 rounded-full transition-all duration-300 cursor-pointer ${
-            hintZoom ? "bg-accent shadow-[0_0_10px_rgba(6,182,212,0.3)]" : "bg-surface-light border border-white/[0.06]"
-          }`}
-          onClick={() => setHintZoom(!hintZoom)}
-        >
-          <div
-            className={`w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-300 mx-1 ${
-              hintZoom ? "translate-x-5" : "translate-x-0"
+      {/* Country count */}
+      <p className="text-center text-sm text-text-dim">
+        <span className="text-accent font-semibold">{countryCount}</span>{" "}
+        {difficulty === "hard" || difficulty === "insane" ? "countries & territories" : "countries"} to find
+      </p>
+
+      {/* Toggles */}
+      <div className="flex flex-col gap-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-text">Zoom hint</p>
+            <p className="text-xs text-text-dim mt-1">Fly to next country after correct guess</p>
+          </div>
+          <button
+            className={`w-11 h-6 rounded-full transition-all duration-300 cursor-pointer ${
+              hintZoom ? "bg-accent shadow-[0_0_10px_rgba(6,182,212,0.3)]" : "bg-surface-light border border-white/[0.06]"
             }`}
+            onClick={() => setHintZoom(!hintZoom)}
+          >
+            <div
+              className={`w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-300 mx-1 ${
+                hintZoom ? "translate-x-5" : "translate-x-0"
+              }`}
+            />
+          </button>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="text-sm font-medium text-text">Skips</p>
+              {maxSkips > 0 && <p className="text-xs text-text-dim mt-0.5">Score penalty per skip</p>}
+            </div>
+            <p className="text-sm font-semibold text-accent">{maxSkips === 0 ? "Off" : maxSkips}</p>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={5}
+            step={1}
+            value={maxSkips}
+            onChange={(e) => setMaxSkips(Number(e.target.value))}
+            className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-light
+              [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
+              [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md
+              [&::-webkit-slider-thumb]:transition-shadow [&::-webkit-slider-thumb]:hover:shadow-[0_0_10px_rgba(6,182,212,0.4)]
+              [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full
+              [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-md"
           />
-        </button>
+          <div className="flex justify-between mt-1">
+            {[0, 1, 2, 3, 4, 5].map((n) => (
+              <span key={n} className={`text-[10px] ${maxSkips === n ? "text-accent" : "text-text-dim/50"}`}>{n}</span>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

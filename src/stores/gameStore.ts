@@ -6,6 +6,20 @@ import { computeGuessPoints, computePenalty } from "../data/scoring";
 import { shuffle } from "../lib/shuffle";
 import { getDailyChallengeCountries } from "../lib/dailyChallenge";
 import { playSound } from "../lib/sound";
+import type { WrongGuessMode } from "../types/game";
+
+function livesForMode(mode: WrongGuessMode): number {
+  switch (mode) {
+    case "sudden_death": return 1;
+    case "3lives": return 3;
+    case "5lives": return 5;
+    default: return 0; // unlimited, penalty
+  }
+}
+
+function isLivesMode(mode: WrongGuessMode): boolean {
+  return mode === "sudden_death" || mode === "3lives" || mode === "5lives";
+}
 
 interface GameStore {
   screen: Screen;
@@ -18,8 +32,10 @@ interface GameStore {
   lives: number;
   currentAttempts: number;
   startedAt: number;
+  endedAt: number;
   timeRemaining: number;
   totalCountries: number;
+  skipsRemaining: number;
 
   // Derived
   currentCountry: CountryMeta | null;
@@ -30,6 +46,7 @@ interface GameStore {
   setScreen: (screen: Screen) => void;
   startGame: (settings: GameSettings) => void;
   handleGuess: (isoCode: string) => "correct" | "wrong" | "already_guessed";
+  skipCountry: () => string | null;
   tick: () => void;
   endGame: () => void;
   reset: () => void;
@@ -52,8 +69,10 @@ function buildQueue(settings: GameSettings): string[] {
     pool = pool.filter((c) => c.difficulty === 1);
   } else if (settings.difficulty === "medium") {
     pool = pool.filter((c) => c.difficulty <= 2);
+  } else if (settings.difficulty === "hard") {
+    pool = pool.filter((c) => c.difficulty <= 3);
   }
-  // "hard" includes everything
+  // "insane" includes everything
 
   return shuffle(pool).map((c) => c.iso_a2);
 }
@@ -69,8 +88,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   lives: 3,
   currentAttempts: 0,
   startedAt: 0,
+  endedAt: 0,
   timeRemaining: 0,
   totalCountries: 0,
+  skipsRemaining: 0,
 
   get currentCountry() {
     const { queue, currentIndex } = get();
@@ -90,7 +111,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
   get isGameOver() {
     const { currentIndex, queue, lives, settings } = get();
     if (currentIndex >= queue.length) return true;
-    if (settings?.wrongGuessMode === "lives" && lives <= 0) return true;
+    if (settings && isLivesMode(settings.wrongGuessMode) && lives <= 0) return true;
     return false;
   },
 
@@ -106,11 +127,13 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       guessedCountries: new Map(),
       score: 0,
       streak: 0,
-      lives: 3,
+      lives: livesForMode(settings.wrongGuessMode),
       currentAttempts: 0,
       startedAt: Date.now(),
+      endedAt: 0,
       timeRemaining: settings.timeLimit,
       totalCountries: queue.length,
+      skipsRemaining: settings.maxSkips,
     });
   },
 
@@ -165,6 +188,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         currentAttempts: 0,
         currentIndex: newIndex,
         screen: isComplete ? "results" : "playing",
+        ...(isComplete && { endedAt: Date.now() }),
       });
 
       return "correct";
@@ -173,11 +197,11 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       playSound("wrong");
 
       const newLives =
-        settings.wrongGuessMode === "lives" ? state.lives - 1 : state.lives;
+        isLivesMode(settings.wrongGuessMode) ? state.lives - 1 : state.lives;
       const penalty =
         settings.wrongGuessMode === "penalty" ? computePenalty(country) : 0;
       const isOut =
-        settings.wrongGuessMode === "lives" && newLives <= 0;
+        isLivesMode(settings.wrongGuessMode) && newLives <= 0;
 
       if (isOut) {
         playSound("gameover");
@@ -189,10 +213,50 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         streak: 0,
         currentAttempts: state.currentAttempts + 1,
         screen: isOut ? "results" : "playing",
+        ...(isOut && { endedAt: Date.now() }),
       });
 
       return "wrong";
     }
+  },
+
+  skipCountry: () => {
+    const state = get();
+    const { queue, currentIndex, settings, skipsRemaining } = state;
+    if (!settings?.maxSkips || skipsRemaining <= 0) return null;
+    if (currentIndex >= queue.length) return null;
+
+    const targetIso = queue[currentIndex];
+    const country = COUNTRY_MAP.get(targetIso);
+    if (!country) return null;
+
+    // Deduct a small penalty (half the base points)
+    const penalty = Math.round(country.basePoints * 0.5);
+
+    const newGuessed = new Map(state.guessedCountries);
+    newGuessed.set(targetIso, {
+      iso: targetIso,
+      correct: false,
+      attempts: 0,
+      pointsEarned: -penalty,
+      timeElapsed: (Date.now() - state.startedAt) / 1000,
+    });
+
+    const newIndex = currentIndex + 1;
+    const isComplete = newIndex >= queue.length;
+
+    set({
+      guessedCountries: newGuessed,
+      score: Math.max(0, state.score - penalty),
+      streak: 0,
+      currentAttempts: 0,
+      currentIndex: newIndex,
+      skipsRemaining: skipsRemaining - 1,
+      screen: isComplete ? "results" : "playing",
+      ...(isComplete && { endedAt: Date.now() }),
+    });
+
+    return targetIso;
   },
 
   tick: () => {
@@ -202,7 +266,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
     const newTime = state.timeRemaining - 1;
     if (newTime <= 0) {
       playSound("gameover");
-      set({ timeRemaining: 0, screen: "results" });
+      set({ timeRemaining: 0, screen: "results", endedAt: Date.now() });
     } else {
       if (newTime <= 10) {
         playSound("tick");
@@ -213,7 +277,7 @@ export const useGameStore = create<GameStore>()((set, get) => ({
 
   endGame: () => {
     playSound("gameover");
-    set({ screen: "results" });
+    set({ screen: "results", endedAt: Date.now() });
   },
 
   reset: () => {
@@ -228,8 +292,10 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       lives: 3,
       currentAttempts: 0,
       startedAt: 0,
+      endedAt: 0,
       timeRemaining: 0,
       totalCountries: 0,
+      skipsRemaining: 0,
     });
   },
 }));

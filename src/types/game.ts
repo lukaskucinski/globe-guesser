@@ -1,8 +1,8 @@
 import type { Region } from "./country";
 
 export type Screen = "menu" | "loading" | "playing" | "results" | "learn";
-export type WrongGuessMode = "unlimited" | "lives" | "penalty";
-export type Difficulty = "easy" | "medium" | "hard";
+export type WrongGuessMode = "unlimited" | "sudden_death" | "3lives" | "5lives" | "penalty";
+export type Difficulty = "easy" | "medium" | "hard" | "insane";
 export type TimeLimit = 0 | 30 | 60 | 120 | 300;
 
 export interface GameSettings {
@@ -11,6 +11,7 @@ export interface GameSettings {
   timeLimit: TimeLimit;
   wrongGuessMode: WrongGuessMode;
   isDaily: boolean;
+  maxSkips: number;
 }
 
 export interface GuessResult {
@@ -35,6 +36,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   region: "all",
   difficulty: "medium",
   timeLimit: 0,
-  wrongGuessMode: "lives",
+  wrongGuessMode: "3lives",
   isDaily: false,
+  maxSkips: 0,
 };

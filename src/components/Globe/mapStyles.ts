@@ -30,7 +30,7 @@ export const countryFillLayer: FillLayerSpecification = {
       ["boolean", ["feature-state", "guessed"], false],
       0.6,
       ["boolean", ["feature-state", "wrong"], false],
-      0.5,
+      0.7,
       ["boolean", ["feature-state", "hover"], false],
       1,
       1,
