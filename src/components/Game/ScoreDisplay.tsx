@@ -22,7 +22,7 @@ export function ScoreDisplay() {
 
   return (
     <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-20 pointer-events-none">
-      <div className="bg-surface/80 backdrop-blur-lg border border-border rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 shadow-lg text-center relative">
+      <div className="bg-card backdrop-blur-lg border border-border rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 shadow-[--color-card-shadow] text-center relative">
         <p className={`text-xl sm:text-2xl font-bold text-gold transition-transform duration-200 ${
           animateScore ? "animate-score-pop" : ""
         }`}>

@@ -37,7 +37,7 @@ export function CountryPrompt({ onSkip }: CountryPromptProps) {
 
   return (
     <div className="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 z-20">
-      <div className={`bg-surface/80 backdrop-blur-lg border rounded-xl px-4 sm:px-6 py-2 sm:py-3 shadow-lg pointer-events-none ${
+      <div className={`bg-card backdrop-blur-lg border rounded-xl px-4 sm:px-6 py-2 sm:py-3 shadow-[--color-card-shadow] pointer-events-none ${
         isDaily ? "border-gold/30" : "border-border"
       }`}>
         {isDaily && (

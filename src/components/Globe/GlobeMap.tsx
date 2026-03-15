@@ -6,12 +6,15 @@ import {
   COUNTRY_SOURCE_ID,
   MICRO_SOURCE_ID,
   LABEL_SOURCE_ID,
-  countryFillLayer,
-  countryLineLayer,
-  microCircleLayer,
-  countryLabelLayer,
+  getCountryFillLayer,
+  getCountryLineLayer,
+  getMicroCircleLayer,
+  getCountryLabelLayer,
+  MAP_STYLES,
+  FOG_CONFIGS,
 } from "./mapStyles";
 import { COUNTRIES } from "../../data/countries";
+import { useSettingsStore } from "../../stores/settingsStore";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
@@ -29,11 +32,87 @@ interface GlobeMapProps {
   onCountryHover?: (isoCode: string | null) => void;
 }
 
+function setupMapLayers(map: mapboxgl.Map, theme: "dark" | "light") {
+  // Hide all text labels from the base style
+  const layers = map.getStyle().layers;
+  if (layers) {
+    for (const layer of layers) {
+      if (layer.type === "symbol") {
+        map.setLayoutProperty(layer.id, "visibility", "none");
+      }
+    }
+  }
+
+  // Override base style colors for light theme
+  if (theme === "light") {
+    // "land" is a background-type layer (covers everything, land sits under water)
+    map.setPaintProperty("land", "background-color", "#ebf2f4");
+    // "water" is a fill layer on top
+    map.setPaintProperty("water", "fill-color", "#bdd3e0");
+  }
+
+  // Set fog/atmosphere
+  map.setFog(FOG_CONFIGS[theme] as mapboxgl.FogSpecification);
+
+  // Add country boundaries source
+  map.addSource(COUNTRY_SOURCE_ID, {
+    type: "vector",
+    url: "mapbox://mapbox.country-boundaries-v1",
+    promoteId: { country_boundaries: "iso_3166_1" },
+  });
+
+  // Add fill layer
+  map.addLayer(getCountryFillLayer(theme));
+
+  // Add line layer
+  map.addLayer(getCountryLineLayer(theme));
+
+  // Add micro-state circle markers
+  const microStates = COUNTRIES.filter((c) => c.isMicroState);
+  map.addSource(MICRO_SOURCE_ID, {
+    type: "geojson",
+    data: {
+      type: "FeatureCollection",
+      features: microStates.map((c) => ({
+        type: "Feature" as const,
+        id: c.iso_a2,
+        properties: { iso: c.iso_a2, name: c.name },
+        geometry: {
+          type: "Point" as const,
+          coordinates: c.labelLngLat,
+        },
+      })),
+    },
+    promoteId: "iso",
+  });
+  map.addLayer(getMicroCircleLayer(theme));
+
+  // Add country name labels
+  map.addSource(LABEL_SOURCE_ID, {
+    type: "geojson",
+    data: {
+      type: "FeatureCollection",
+      features: COUNTRIES.map((c) => ({
+        type: "Feature" as const,
+        id: c.iso_a2,
+        properties: { iso: c.iso_a2, name: c.name },
+        geometry: {
+          type: "Point" as const,
+          coordinates: c.labelLngLat,
+        },
+      })),
+    },
+    promoteId: "iso",
+  });
+  map.addLayer(getCountryLabelLayer(theme));
+}
+
 export const GlobeMap = forwardRef<GlobeMapHandle, GlobeMapProps>(
   ({ spinning = true, interactive = true, onCountryClick, onCountryHover }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<mapboxgl.Map | null>(null);
     const [mapReady, setMapReady] = useState(false);
+    const theme = useSettingsStore((s) => s.theme);
 
     // Initialize map
     useEffect(() => {
@@ -41,7 +120,7 @@ export const GlobeMap = forwardRef<GlobeMapHandle, GlobeMapProps>(
 
       const map = new mapboxgl.Map({
         container: containerRef.current,
-        style: "mapbox://styles/mapbox/dark-v11",
+        style: MAP_STYLES[theme],
         projection: "globe",
         center: [20, 20],
         zoom: 2.8,
@@ -51,78 +130,8 @@ export const GlobeMap = forwardRef<GlobeMapHandle, GlobeMapProps>(
         attributionControl: false,
       });
 
-      map.on("style.load", () => {
-        // Atmosphere/fog for the globe
-        map.setFog({
-          color: "rgb(10, 10, 26)",
-          "high-color": "rgb(20, 20, 50)",
-          "horizon-blend": 0.04,
-          "space-color": "rgb(5, 5, 15)",
-          "star-intensity": 0.6,
-        });
-
-        // Hide all text labels from the base style
-        const layers = map.getStyle().layers;
-        if (layers) {
-          for (const layer of layers) {
-            if (layer.type === "symbol") {
-              map.setLayoutProperty(layer.id, "visibility", "none");
-            }
-          }
-        }
-
-        // Add country boundaries source
-        map.addSource(COUNTRY_SOURCE_ID, {
-          type: "vector",
-          url: "mapbox://mapbox.country-boundaries-v1",
-          promoteId: { country_boundaries: "iso_3166_1" },
-        });
-
-        // Add fill layer (for click detection + coloring)
-        map.addLayer(countryFillLayer);
-
-        // Add line layer (outlines)
-        map.addLayer(countryLineLayer);
-
-        // Add micro-state circle markers
-        const microStates = COUNTRIES.filter((c) => c.isMicroState);
-        map.addSource(MICRO_SOURCE_ID, {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: microStates.map((c) => ({
-              type: "Feature" as const,
-              id: c.iso_a2,
-              properties: { iso: c.iso_a2, name: c.name },
-              geometry: {
-                type: "Point" as const,
-                coordinates: c.labelLngLat,
-              },
-            })),
-          },
-          promoteId: "iso",
-        });
-        map.addLayer(microCircleLayer);
-
-        // Add country name labels (hidden by default, shown via feature state)
-        map.addSource(LABEL_SOURCE_ID, {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: COUNTRIES.map((c) => ({
-              type: "Feature" as const,
-              id: c.iso_a2,
-              properties: { iso: c.iso_a2, name: c.name },
-              geometry: {
-                type: "Point" as const,
-                coordinates: c.labelLngLat,
-              },
-            })),
-          },
-          promoteId: "iso",
-        });
-        map.addLayer(countryLabelLayer);
-
+      map.once("style.load", () => {
+        setupMapLayers(map, theme);
         setMapReady(true);
       });
 
@@ -133,6 +142,7 @@ export const GlobeMap = forwardRef<GlobeMapHandle, GlobeMapProps>(
         mapRef.current = null;
         setMapReady(false);
       };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const map = mapReady ? mapRef.current : null;

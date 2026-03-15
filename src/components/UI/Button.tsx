@@ -9,9 +9,9 @@ const variants = {
   primary:
     "bg-gradient-to-b from-accent to-accent-dim text-white shadow-md shadow-accent/15 hover:shadow-lg hover:shadow-accent/20 hover:brightness-110",
   secondary:
-    "bg-surface-light/80 hover:bg-surface-light text-text border border-white/[0.06] hover:border-white/[0.1]",
+    "bg-surface-light/80 hover:bg-surface-light text-text border border-glass-border hover:border-border",
   ghost:
-    "bg-transparent hover:bg-white/[0.04] text-text-dim hover:text-text",
+    "bg-transparent hover:bg-glass-bg text-text-dim hover:text-text",
 };
 
 const sizes = {

@@ -3,6 +3,8 @@ import { persist } from "zustand/middleware";
 import type { GameSettings, Difficulty, TimeLimit, WrongGuessMode } from "../types/game";
 import type { Region } from "../types/country";
 
+export type Theme = "dark" | "light";
+
 interface SettingsStore {
   region: Region | "all";
   difficulty: Difficulty;
@@ -11,6 +13,7 @@ interface SettingsStore {
   soundEnabled: boolean;
   hintZoom: boolean;
   maxSkips: number;
+  theme: Theme;
 
   setRegion: (region: Region | "all") => void;
   setDifficulty: (difficulty: Difficulty) => void;
@@ -19,6 +22,7 @@ interface SettingsStore {
   setSoundEnabled: (enabled: boolean) => void;
   setHintZoom: (enabled: boolean) => void;
   setMaxSkips: (maxSkips: number) => void;
+  setTheme: (theme: Theme) => void;
   getGameSettings: (isDaily?: boolean) => GameSettings;
 }
 
@@ -32,6 +36,7 @@ export const useSettingsStore = create<SettingsStore>()(
       soundEnabled: true,
       hintZoom: false,
       maxSkips: 0,
+      theme: "dark",
 
       setRegion: (region) => set({ region }),
       setDifficulty: (difficulty) => set({ difficulty }),
@@ -40,6 +45,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
       setHintZoom: (enabled) => set({ hintZoom: enabled }),
       setMaxSkips: (maxSkips) => set({ maxSkips }),
+      setTheme: (theme) => set({ theme }),
 
       getGameSettings: (isDaily = false) => {
         const state = get();

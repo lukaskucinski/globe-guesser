@@ -10,16 +10,21 @@ import { setMuted } from "./lib/sound";
 function App() {
   const screen = useGameStore((s) => s.screen);
   const soundEnabled = useSettingsStore((s) => s.soundEnabled);
+  const theme = useSettingsStore((s) => s.theme);
 
   useEffect(() => {
     setMuted(!soundEnabled);
   }, [soundEnabled]);
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
   return (
     <div className="relative w-full h-full bg-bg">
       {screen === "menu" && (
         <>
-          <GlobeMap spinning={true} interactive={false} />
+          <GlobeMap key={theme} spinning={true} interactive={false} />
           <MainMenu />
         </>
       )}

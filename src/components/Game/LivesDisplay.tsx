@@ -14,7 +14,7 @@ export function LivesDisplay() {
 
   return (
     <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-20 pointer-events-none">
-      <div className="bg-surface/80 backdrop-blur-lg border border-border rounded-xl px-4 py-2 shadow-lg">
+      <div className="bg-card backdrop-blur-lg border border-border rounded-xl px-4 py-2 shadow-[--color-card-shadow]">
         <div className="flex gap-1.5">
           {Array.from({ length: totalLives }, (_, i) => (
             <span
