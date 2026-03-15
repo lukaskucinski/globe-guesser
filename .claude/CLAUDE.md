@@ -18,6 +18,8 @@ A geography guessing game with a spinning 3D Mapbox globe.
 - Difficulty tiers 1–4 map to easy/medium/hard/insane; queue filtering uses `pool.filter(c => c.difficulty <= N)` with insane having no filter
 - Lives modes (`sudden_death`, `3lives`, `5lives`) abstracted via `livesForMode()` and `isLivesMode()` helpers in `gameStore.ts`
 - `endedAt` timestamp freezes elapsed time on the results screen (prevents re-renders from updating the clock)
+- Dark/light theme via `data-theme` attribute on `<html>`, CSS variable overrides in `index.css`, and `key={theme}` on GlobeMap for clean Mapbox style remount
+- Theme-adaptive tokens (`glass-border`, `glass-bg`, `card`, `card-shadow`) replace hardcoded `white/[0.06]` references
 
 ## Commands
 - `npm run dev` — Start dev server
