@@ -38,7 +38,7 @@ export function MainMenu() {
 
   return (
     <div className="absolute inset-0 z-10 flex items-center justify-center p-5 sm:p-8 pointer-events-none">
-      <div className="pointer-events-auto relative bg-surface/10 backdrop-blur-md border border-white/[0.06] rounded-3xl max-w-2xl w-full shadow-[0_8px_60px_rgba(6,182,212,0.08)] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] animate-menu-enter overflow-hidden">
+      <div className="pointer-events-auto relative bg-card backdrop-blur-md border border-glass-border rounded-3xl max-w-2xl w-full shadow-[--color-card-shadow] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] animate-menu-enter overflow-hidden">
 
         {/* Scrollable content */}
         <div
@@ -57,13 +57,13 @@ export function MainMenu() {
           </div>
 
           {/* Divider */}
-          <div className="border-t border-white/[0.06] mb-6 sm:mb-8" />
+          <div className="border-t border-glass-border mb-6 sm:mb-8" />
 
           {/* Settings */}
           <GameSettings />
 
           {/* Divider */}
-          <div className="border-t border-white/[0.06] my-6 sm:my-8" />
+          <div className="border-t border-glass-border my-6 sm:my-8" />
 
           {/* Actions */}
           <div className="flex flex-col gap-4">
@@ -93,7 +93,7 @@ export function MainMenu() {
 
         {/* Bottom fade hint */}
         <div
-          className={`absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0a0a1a]/80 to-transparent rounded-b-3xl pointer-events-none transition-opacity duration-300 ${
+          className={`absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-bg/80 to-transparent rounded-b-3xl pointer-events-none transition-opacity duration-300 ${
             canScroll ? "opacity-100" : "opacity-0"
           }`}
         />

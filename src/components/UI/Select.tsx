@@ -48,7 +48,7 @@ export function Select({ label, value, options, onChange }: SelectProps) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between bg-surface-light/80 border border-white/[0.06] rounded-xl px-4 py-3.5 text-text text-base cursor-pointer focus:outline-none focus:border-accent/60 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all duration-200"
+        className="flex items-center justify-between bg-surface-light/80 border border-glass-border rounded-xl px-4 py-3.5 text-text text-base cursor-pointer focus:outline-none focus:border-accent/60 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all duration-200"
       >
         <span className="truncate">{selected?.label ?? ""}</span>
         <svg
@@ -63,7 +63,7 @@ export function Select({ label, value, options, onChange }: SelectProps) {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-surface-light border border-white/[0.08] rounded-xl shadow-xl overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-surface-light border border-glass-border rounded-xl shadow-xl overflow-hidden">
           {options.map((opt) => (
             <div
               key={opt.value}

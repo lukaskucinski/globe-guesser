@@ -51,10 +51,22 @@ Hover tracking uses a `hoveredId` ref; `clearHover()` must be called before sett
 
 ## Globe Projection
 
-- Style: `mapbox://styles/mapbox/dark-v11`
 - Projection: `globe` (3D sphere)
 - Zoom range: 1–8
-- Atmosphere/fog: deep navy colors with `star-intensity: 0.6`
+- Style per theme: `dark-v11` (dark) / `light-v11` (light)
+- Theme switching uses `key={theme}` on GlobeMap to cleanly remount (avoids `map.setStyle()` race conditions)
+- Light theme overrides base style layers: ocean (`water` fill → `#bdd3e0`), land (`land` background → `#ebf2f4`)
+
+### Fog / Atmosphere
+| Setting | Dark | Light |
+|---------|------|-------|
+| `color` | `rgb(10,10,26)` | `rgb(189,211,224)` (matches ocean) |
+| `high-color` | `rgb(20,20,50)` | `rgb(40,40,70)` |
+| `space-color` | `rgb(5,5,15)` | `rgb(10,10,26)` (dark space in both) |
+| `star-intensity` | `0.6` | `0.4` |
+
+### Layer Definitions
+Layer objects in `mapStyles.ts` are theme-parameterized functions (`getCountryFillLayer(theme)`, etc.) to support different default fills and label halos per theme.
 
 ## Auto-Rotation
 
@@ -85,3 +97,5 @@ Both fill and line layers exclude disputed areas:
 - **Layer visibility affects clickability** — `queryRenderedFeatures` only finds visible/rendered features
 - **FlyTo animation**: 2000ms with `essential: true` to ensure completion
 - Errors when setting state on micro-states/labels for non-existent entries are caught and ignored
+- **Never use `map.setStyle()` for theme switching** — causes internal Mapbox errors (`Cannot read properties of undefined (reading 'get')`) due to race conditions with rotation interval and interaction handlers. Use React `key` prop to remount instead.
+- **Mapbox light-v11 layer IDs**: `land` is a `background` type layer (not fill), `water` is a `fill` type layer — counterintuitive when overriding colors
